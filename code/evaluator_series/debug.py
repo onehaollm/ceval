@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--ntrain", "-k", type=int, default=5)
-    parser.add_argument("--openai_key", type=str, default="sk")
+    parser.add_argument("--openai_key", type=str, default="sk-")
     parser.add_argument("--openai_base_url", type=str, default="https://cloud.infini-ai.com/maas/v1")
     parser.add_argument("--minimax_group_id", type=str, default="xxx")
     parser.add_argument("--minimax_key", type=str, default="xxx")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     score = [1, 0, 1, 0, 1]
     # test_df["correctness"] = score
     # test_df.to_csv(os.path.join(save_result_dir, f'{subject_name}_val.csv'), encoding="utf-8", index=False)
-
+    dataset = dataset.add_column(name="correctness",column=score)
 
     dataset.to_csv(os.path.join(save_result_dir, f'{subject_name}_val.csv'), encoding="utf-8", index=False)
     correct_ratio = evaluator.eval_subject(subject_name, test_df, few_shot=args.few_shot,

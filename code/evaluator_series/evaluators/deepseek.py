@@ -142,8 +142,10 @@ class DeepSeek_Evaluator(Evaluator):
         correct_ratio = 100*correct_num/len(answers)
 
         if save_result_dir:
-            dataset['model_output']=result
-            dataset["correctness"]=score
+            dataset = dataset.add_column(name="model_output", column=result)
+            dataset = dataset.add_column(name="correctness", column=score)
+            # dataset['model_output']=result
+            # dataset["correctness"]=score
             dataset.to_csv(os.path.join(save_result_dir, f'{subject_name}_val.csv'),encoding="utf-8",index=False)
         return correct_ratio
 
