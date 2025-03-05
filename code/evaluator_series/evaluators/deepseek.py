@@ -7,10 +7,11 @@ import re
 
 
 class DeepSeek_Evaluator(Evaluator):
-    def __init__(self, choices, k, api_key,model_name,model_api):
+    def __init__(self, choices, k, api_key,model_name,model_api,subset):
         super(DeepSeek_Evaluator, self).__init__(choices, model_name, k)
         openai.api_key = api_key
         self.model_api = model_api
+        self.subset = subset
 
     def format_example(self,line,include_answer=True,cot=False):
         example=line['question']
@@ -66,8 +67,8 @@ class DeepSeek_Evaluator(Evaluator):
                     "content":f"你是一个中文人工智能助手，以下是中国关于{subject_name}考试的单项选择题，请选出其中的正确答案。"
                 }
             ]
-        answers = list(test_df['val']['answer'])
-        dataset = test_df['val']
+        answers = list(test_df[self.subset]['answer'])
+        dataset = test_df[self.subset]
         # for row_index, row in tqdm(dataset.column_names,total=len(dataset)):
         for i in range(len(dataset)):
             row = dataset[i]
@@ -86,6 +87,7 @@ class DeepSeek_Evaluator(Evaluator):
                     #     temperature=0.
                     # )
                     response = self.create(few_shot_prompt[0]['content'],question[0]['content'])
+                    print("Model output:\n" + response)
                 except Exception as msg:
                     if "timeout=600" in str(msg):
                         timeout_counter+=1

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import argparse
+import os
+
 import requests
 import base64
 
@@ -6,6 +9,8 @@ import time
 import openai
 from random import choice
 from typing import List
+
+from datasets import load_dataset
 from openai import OpenAI
 
 
@@ -87,4 +92,5 @@ if __name__ == "__main__":
     result = test(model_api, choice_prompt, choice_question)
 
     print("Model output:\n" + result)
-    
+
+

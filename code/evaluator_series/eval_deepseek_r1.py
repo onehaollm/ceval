@@ -22,7 +22,8 @@ def main(args):
             k=args.ntrain,
             api_key=args.openai_key,
             model_name=args.model_name,
-            model_api=DeepSeek_OpenaiAPI(args.openai_key, args.openai_base_url, model_name=args.model_name, temperature=0.6, max_tokens=4096)
+            model_api=DeepSeek_OpenaiAPI(args.openai_key, args.openai_base_url, model_name=args.model_name, temperature=0.6, max_tokens=4096),
+            subset=args.subset
         )
     elif "turbo" in args.model_name or "gpt-4" in args.model_name:
         evaluator=ChatGPT_Evaluator(
@@ -82,7 +83,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ntrain", "-k", type=int, default=5)
-    parser.add_argument("--openai_key", type=str,default="")
+    parser.add_argument("--openai_key", type=str,default="sk-dar77jx46mqubua7")
     parser.add_argument("--openai_base_url", type=str, default="https://cloud.infini-ai.com/maas/v1")
     parser.add_argument("--minimax_group_id", type=str,default="xxx")
     parser.add_argument("--minimax_key", type=str,default="xxx")
@@ -90,6 +91,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_name",type=str,default="deepseek-r1")
     parser.add_argument("--cot",action="store_true")
     parser.add_argument("--subject","-s",type=str,default="operating_system")
-    parser.add_argument("--cuda_device", type=str)    
+    parser.add_argument("--cuda_device", type=str)
+    parser.add_argument("--subset", type=str, default="val")
     args = parser.parse_args()
     main(args)
