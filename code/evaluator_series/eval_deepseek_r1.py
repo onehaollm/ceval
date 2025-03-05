@@ -2,6 +2,10 @@ import os
 import argparse
 import pandas as pd
 import torch
+from datasets import load_dataset
+
+from models.deepseek_openapi import DeepSeek_OpenaiAPI
+from evaluators.deepseek import DeepSeek_Evaluator
 from evaluators.chatgpt import ChatGPT_Evaluator
 from evaluators.moss import Moss_Evaluator
 from evaluators.chatglm import ChatGLM_Evaluator
@@ -12,7 +16,15 @@ choices = ["A", "B", "C", "D"]
 
 def main(args):
 
-    if "turbo" in args.model_name or "gpt-4" in args.model_name:
+    if "deepseek-r1" in args.model_name:
+        evaluator=DeepSeek_Evaluator(
+            choices=choices,
+            k=args.ntrain,
+            api_key=args.openai_key,
+            model_name=args.model_name,
+            model_api=DeepSeek_OpenaiAPI(args.openai_key, args.openai_base_url, model_name=args.model_name, temperature=0.6, max_tokens=4096)
+        )
+    elif "turbo" in args.model_name or "gpt-4" in args.model_name:
         evaluator=ChatGPT_Evaluator(
             choices=choices,
             k=args.ntrain,
@@ -54,25 +66,28 @@ def main(args):
     save_result_dir=os.path.join(r"logs",f"{args.model_name}_{run_date}")
     os.mkdir(save_result_dir)
     print(subject_name)
-    val_file_path=os.path.join('data/val',f'{subject_name}_val.csv')
-    val_df=pd.read_csv(val_file_path)
+    # val_file_path=os.path.join('data/val',f'{subject_name}_val.csv')
+    # val_df=pd.read_csv(val_file_path)
+
+    dataset = load_dataset(r"ceval/ceval-exam", name=subject_name)
     if args.few_shot:
         dev_file_path=os.path.join('data/dev',f'{subject_name}_dev.csv')
         dev_df=pd.read_csv(dev_file_path)
-        correct_ratio = evaluator.eval_subject(subject_name, val_df, dev_df, few_shot=args.few_shot,save_result_dir=save_result_dir,cot=args.cot)
+        correct_ratio = evaluator.eval_subject(subject_name, dataset, dev_df, few_shot=args.few_shot,save_result_dir=save_result_dir,cot=args.cot)
     else:
-        correct_ratio = evaluator.eval_subject(subject_name, val_df, few_shot=args.few_shot,save_result_dir=save_result_dir)
+        correct_ratio = evaluator.eval_subject(subject_name, dataset, few_shot=args.few_shot,save_result_dir=save_result_dir)
     print("Acc:",correct_ratio)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ntrain", "-k", type=int, default=5)
-    parser.add_argument("--openai_key", type=str,default="xxx")
+    parser.add_argument("--openai_key", type=str,default="")
+    parser.add_argument("--openai_base_url", type=str, default="https://cloud.infini-ai.com/maas/v1")
     parser.add_argument("--minimax_group_id", type=str,default="xxx")
     parser.add_argument("--minimax_key", type=str,default="xxx")
     parser.add_argument("--few_shot", action="store_true")
-    parser.add_argument("--model_name",type=str)
+    parser.add_argument("--model_name",type=str,default="deepseek-r1")
     parser.add_argument("--cot",action="store_true")
     parser.add_argument("--subject","-s",type=str,default="operating_system")
     parser.add_argument("--cuda_device", type=str)    

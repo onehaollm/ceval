@@ -6,10 +6,11 @@ from time import sleep
 import re
 
 
-class ChatGPT_Evaluator(Evaluator):
-    def __init__(self, choices, k, api_key,model_name):
-        super(ChatGPT_Evaluator, self).__init__(choices, model_name, k)
+class DeepSeek_Evaluator(Evaluator):
+    def __init__(self, choices, k, api_key,model_name,model_api):
+        super(DeepSeek_Evaluator, self).__init__(choices, model_name, k)
         openai.api_key = api_key
+        self.model_api = model_api
 
     def format_example(self,line,include_answer=True,cot=False):
         example=line['question']
@@ -67,8 +68,11 @@ class ChatGPT_Evaluator(Evaluator):
             ]
         answers = list(test_df['val']['answer'])
         dataset = test_df['val']
-        for row_index, row in tqdm(dataset.iterrows(),total=len(dataset)):
+        # for row_index, row in tqdm(dataset.column_names,total=len(dataset)):
+        for i in range(len(dataset)):
+            row = dataset[i]
             question = self.format_example(row, include_answer=False)
+
             full_prompt = few_shot_prompt + question
             if not few_shot:
                 full_prompt[-1]["content"]=f"以下是中国关于{subject_name}考试的单项选择题，请选出其中的正确答案。\n\n"+full_prompt[-1]["content"]
@@ -76,11 +80,12 @@ class ChatGPT_Evaluator(Evaluator):
             timeout_counter=0
             while response is None and timeout_counter<=30:
                 try:
-                    response = openai.ChatCompletion.create(
-                        model=self.model_name,
-                        messages=full_prompt,
-                        temperature=0.
-                    )
+                    # response = openai.ChatCompletion.create(
+                    #     model=self.model_name,
+                    #     messages=full_prompt,
+                    #     temperature=0.
+                    # )
+                    response = self.create(few_shot_prompt[0]['content'],question[0]['content'])
                 except Exception as msg:
                     if "timeout=600" in str(msg):
                         timeout_counter+=1
@@ -90,7 +95,8 @@ class ChatGPT_Evaluator(Evaluator):
             if response==None:
                 response_str=""
             else:
-                response_str = response['choices'][0]['message']['content']
+                # response_str = response['choices'][0]['message']['content']
+                response_str = response
             #print(response_str)
             if cot:
                 ans_list=re.findall(r"答案是(.+?)。",response_str)
@@ -168,3 +174,8 @@ class ChatGPT_Evaluator(Evaluator):
             else:
                 break
         return ans_list
+
+    def create(self, prompt: str, question: str):
+        response = self.model_api(prompt, question)
+
+        return response
