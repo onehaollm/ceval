@@ -83,7 +83,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ntrain", "-k", type=int, default=5)
-    parser.add_argument("--openai_key", type=str,default="sk-dar77jx46mqubua7")
+    parser.add_argument("--openai_key", type=str,default="sk-")
     parser.add_argument("--openai_base_url", type=str, default="https://cloud.infini-ai.com/maas/v1")
     parser.add_argument("--minimax_group_id", type=str,default="xxx")
     parser.add_argument("--minimax_key", type=str,default="xxx")
