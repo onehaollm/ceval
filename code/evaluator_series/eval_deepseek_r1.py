@@ -92,6 +92,6 @@ if __name__ == "__main__":
     parser.add_argument("--cot",action="store_true")
     parser.add_argument("--subject","-s",type=str,default="operating_system")
     parser.add_argument("--cuda_device", type=str)
-    parser.add_argument("--subset", type=str, default="val")
+    parser.add_argument("--subset", type=str, default="val")  #support "val", "test", "dev"
     args = parser.parse_args()
     main(args)

@@ -168,6 +168,7 @@ class DeepSeek_Evaluator(Evaluator):
             r"答案为：\s?选?项?\s?([A-D])",
             r"答案应为：\s?选?项?\s?([A-D])",
             r"答案：\s?选?项?\s?([A-D])",
+            r"答案.*?[A-D]\.",
         ]
         ans_list=[]
         if response_str[0] in ["A",'B','C','D']:
