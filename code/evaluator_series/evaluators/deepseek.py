@@ -76,7 +76,7 @@ class DeepSeek_Evaluator(Evaluator):
 
             full_prompt = few_shot_prompt + question
             if not few_shot:
-                full_prompt[-1]["content"]=f"以下是中国关于{subject_name}考试的单项选择题，请选出其中的正确答案。\n\n"+full_prompt[-1]["content"]
+                full_prompt[-1]["content"]=f"以下是中国关于{subject_name}考试的单项选择题，请选出其中的正确答案。\n\n, 答案输出格式为答案为：A/B/C/D"+full_prompt[-1]["content"]
             response=None
             timeout_counter=0
             while response is None and timeout_counter<=30:
@@ -156,6 +156,7 @@ class DeepSeek_Evaluator(Evaluator):
             r"答案是\s?选?项?\s?([A-D])",
             r"答案为\s?选?项?\s?([A-D])",
             r"答案应为\s?选?项?\s?([A-D])",
+            r"答案\s?选?项?\s?([A-D])",
             r"答案选\s?选?项?\s?([A-D])",
             r"答案是:\s?选?项?\s?([A-D])",
             r"答案应该是:\s?选?项?\s?([A-D])",
@@ -169,6 +170,19 @@ class DeepSeek_Evaluator(Evaluator):
             r"答案应为：\s?选?项?\s?([A-D])",
             r"答案：\s?选?项?\s?([A-D])",
             r"答案.*?[A-D]\.",
+            r"答案：*?[A-D]\.",
+            r"答案为：*?[A-D]\.",
+            r"答案是：*?[A-D]\.",
+            r"(?i)正确?答案[：:].*?([A-D])",
+            r"(正确|正确选项|答案)[：:]\s*([A-D])",
+            r"正确?答案[：:][\s\*]*([A-D])[\.\*]",
+            r"(正确|正确选项|答案|答案是|答案为)[：:]\s*([A-D])",
+            r"(正确|正确选项|答案|答案是|答案为)[：:]\s*?\*{0,2}([A-D])\.?",
+            r"正确?答案[是为][：:][\s*]*([A-D])[\s*.]*",
+            r"正确?答案[是为系即][：:][\s*]*([A-D])[\s*.]*",
+            r"正确?答案[是为][：:][\s*❖〖]*([A-D])[\s*❖〗.]*",
+            r"正确?答案[是为系即][：:]?[\s*]*\*{0,2}([A-D])\*{0,2}[\s*。.]*",
+            r"正确?答案[是为系即][：:]?[\s*]*(?:\*\*?)?([A-D])(?:\*\*?)?[\s*。.]*",
         ]
         ans_list=[]
         if response_str[0] in ["A",'B','C','D']:
@@ -178,6 +192,10 @@ class DeepSeek_Evaluator(Evaluator):
                 ans_list=re.findall(p,response_str)
             else:
                 break
+        if len(ans_list) > 0:
+            print("**********matched***************")
+        else:
+            print("**********un-matched***************")
         return ans_list
 
     def create(self, prompt: str, question: str):
